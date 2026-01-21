@@ -22,6 +22,12 @@ export const authAPI = {
     return response.data;
   },
 
+  // Logout user (clears cookie on backend)
+  logout: async () => {
+    const response = await api.post("/auth/logout");
+    return response.data;
+  },
+
   // Get current user profile
   getProfile: async () => {
     const response = await api.get("/auth/me");

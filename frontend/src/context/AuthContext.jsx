@@ -6,34 +6,51 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem("token"));
 
-  // Initialize auth state from localStorage
+  // Initialize auth state by checking with backend (cookie will be sent automatically)
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = localStorage.getItem("token");
-      const storedUser = localStorage.getItem("user");
-
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+      try {
+        console.log("Checking authentication status...");
+        // Try to get current user from backend
+        // The cookie is sent automatically with this request
+        const response = await authAPI.getProfile();
+        console.log("User authenticated:", response.data);
+        setUser(response.data);
+      } catch (error) {
+        // No valid session - user not authenticated
+        // This is expected for logged-out users, so just set user to null
+        console.log("No active session - user not authenticated", error.response?.status);
+        setUser(null);
+      } finally {
+        console.log("Auth check complete");
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initAuth();
   }, []);
 
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-black rounded-full animate-spin"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Login function
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
-      const { token: newToken, ...userData } = response.data;
+      const userData = response.data;
 
-      localStorage.setItem("token", newToken);
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      setToken(newToken);
+      // Cookie is set by backend automatically
+      // Just update the user state
       setUser(userData);
 
       return { success: true };
@@ -49,12 +66,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authAPI.register(userData);
-      const { token: newToken, ...user } = response.data;
+      const user = response.data;
 
-      localStorage.setItem("token", newToken);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      setToken(newToken);
+      // Cookie is set by backend automatically
+      // Just update the user state
       setUser(user);
 
       return { success: true };
@@ -67,29 +82,32 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout function
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      // Call backend logout endpoint to clear cookie
+      await authAPI.logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      // Clear user state
+      setUser(null);
+    }
   };
 
   // Update user profile
   const updateUser = (updatedData) => {
     const updatedUser = { ...user, ...updatedData };
     setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   const value = {
     user,
-    token,
     loading,
     login,
     register,
     logout,
     updateUser,
-    isAuthenticated: !!token,
+    isAuthenticated: !!user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
