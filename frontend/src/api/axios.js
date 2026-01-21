@@ -8,17 +8,18 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Remove the request interceptor that adds Authorization header
-// Cookies are sent automatically
-
 // Response interceptor to handle errors globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Only redirect on 401 if it's NOT the initial auth check
+    // Check if the failing request is the /auth/me endpoint
+    const isAuthCheckRequest = error.config?.url?.includes('/auth/me');
+    
+    if (error.response?.status === 401 && !isAuthCheckRequest) {
       // Clear any remaining localStorage data
       localStorage.removeItem("user");
-      window.location.href = "/";
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
