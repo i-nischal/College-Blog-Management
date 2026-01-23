@@ -3,9 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
 
-/**
- * Minimal login page with clean card design
- */
+
 const LoginForm = () => {
   const { login } = useAuth();
   const navigate = useNavigate();

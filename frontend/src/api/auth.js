@@ -5,7 +5,7 @@ export const authAPI = {
   register: async (userData) => {
     const config = {};
 
-    // If userData is FormData, set appropriate headers
+ 
     if (userData instanceof FormData) {
       config.headers = {
         "Content-Type": "multipart/form-data",
@@ -38,7 +38,7 @@ export const authAPI = {
   updateProfile: async (profileData) => {
     const config = {};
 
-    // If profileData is FormData, set appropriate headers
+  
     if (profileData instanceof FormData) {
       config.headers = {
         "Content-Type": "multipart/form-data",

@@ -13,7 +13,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Only redirect on 401 if it's NOT the initial auth check
-    // Check if the failing request is the /auth/me endpoint
+  
     const isAuthCheckRequest = error.config?.url?.includes('/auth/me');
     
     if (error.response?.status === 401 && !isAuthCheckRequest) {

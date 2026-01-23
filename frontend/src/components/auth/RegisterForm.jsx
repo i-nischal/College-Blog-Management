@@ -3,9 +3,6 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User } from "lucide-react";
 
-/**
- * Minimal registration page with clean card design
- */
 const RegisterForm = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -173,21 +170,6 @@ const RegisterForm = () => {
                 {errors.confirmPassword}
               </p>
             )}
-          </div>
-
-          {/* Terms Checkbox - ONLY IN REGISTRATION */}
-          <div className="flex items-center justify-center gap-2 py-2">
-            <input
-              type="checkbox"
-              id="terms"
-              className="w-4 h-4 rounded border-gray-300 text-black focus:ring-black"
-            />
-            <label htmlFor="terms" className="text-sm text-gray-600">
-              I agree to the{" "}
-              <span className="text-black hover:underline cursor-pointer">
-                terms and conditions
-              </span>
-            </label>
           </div>
 
           {/* Sign Up Button */}
