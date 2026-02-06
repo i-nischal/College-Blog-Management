@@ -6,7 +6,7 @@ const generateToken = (userId) => {
   });
 };
 
-// New function to set token as cookie
+// function to set token as cookie
 export const setTokenCookie = (res, token) => {
   const expiresIn = process.env.JWT_EXPIRE || "7d";
   const days = parseInt(expiresIn.replace('d', ''));

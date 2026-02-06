@@ -15,18 +15,17 @@ export const AuthProvider = ({ children }) => {
         // Try to get current user from backend
         // The cookie is sent automatically with this request
         const response = await authAPI.getProfile();
-        console.log("User authenticated:", response.data);
+
         setUser(response.data);
       } catch (error) {
         // No valid session - user not authenticated
         // This is expected for logged-out users, so just set user to null
         console.log("No active session - user not authenticated");
         setUser(null);
-        
+
         // Don't redirect here - let the routing handle it
         // The error is expected when user is not logged in
       } finally {
-        console.log("Auth check complete");
         setLoading(false);
       }
     };
