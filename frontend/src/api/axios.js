@@ -12,17 +12,17 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Only redirect on 401 if it's NOT the initial auth check
-  
-    const isAuthCheckRequest = error.config?.url?.includes('/auth/me');
-    
-    if (error.response?.status === 401 && !isAuthCheckRequest) {
-      // Clear any remaining localStorage data
+    const isAuthCheckRequest = error.config?.url?.includes("/auth/me");
+    const isAuthRoute =
+      error.config?.url?.includes("/auth/login") ||
+      error.config?.url?.includes("/auth/register");
+
+    if (error.response?.status === 401 && !isAuthCheckRequest && !isAuthRoute) {
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

@@ -1,7 +1,7 @@
-import User from '../models/User.js';
-import generateToken, { setTokenCookie } from '../utils/generateToken.js';
-import ApiResponse from '../utils/apiResponse.js';
-
+import User from "../models/User.js";
+import generateToken, { setTokenCookie } from "../utils/generateToken.js";
+import ApiResponse from "../utils/apiResponse.js";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
@@ -10,28 +10,28 @@ export const register = async (req, res, next) => {
     const { name, email, password, bio } = req.body;
 
     if (!name || !email || !password) {
-      return ApiResponse.error(res, 400, 'Please provide all required fields');
+      return ApiResponse.error(res, 400, "Please provide all required fields");
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return ApiResponse.error(res, 400, 'User already exists');
+      return ApiResponse.error(res, 400, "User already exists");
     }
 
     const user = await User.create({
       name,
       email,
       password,
-      bio: bio || '',
+      bio: bio || "",
     });
 
     if (user) {
       const token = generateToken(user._id);
-      
+
       // Set token as HttpOnly cookie
       setTokenCookie(res, token);
 
-      return ApiResponse.success(res, 201, 'User registered successfully', {
+      return ApiResponse.success(res, 201, "User registered successfully", {
         _id: user._id,
         name: user.name,
         email: user.email,
@@ -40,7 +40,7 @@ export const register = async (req, res, next) => {
         // Don't send token in response body anymore
       });
     } else {
-      return ApiResponse.error(res, 400, 'Invalid user data');
+      return ApiResponse.error(res, 400, "Invalid user data");
     }
   } catch (error) {
     next(error);
@@ -55,18 +55,18 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return ApiResponse.error(res, 400, 'Please provide email and password');
+      return ApiResponse.error(res, 400, "Please provide email and password");
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select("+password");
 
     if (user && (await user.matchPassword(password))) {
       const token = generateToken(user._id);
-      
+
       // Set token as HttpOnly cookie
       setTokenCookie(res, token);
 
-      return ApiResponse.success(res, 200, 'Login successful', {
+      return ApiResponse.success(res, 200, "Login successful", {
         _id: user._id,
         name: user.name,
         email: user.email,
@@ -75,7 +75,7 @@ export const login = async (req, res, next) => {
         // Don't send token in response body anymore
       });
     } else {
-      return ApiResponse.error(res, 401, 'Invalid email or password');
+      return ApiResponse.error(res, 401, "Invalid email or password");
     }
   } catch (error) {
     next(error);
@@ -89,7 +89,7 @@ export const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
 
-    return ApiResponse.success(res, 200, 'User profile retrieved', {
+    return ApiResponse.success(res, 200, "User profile retrieved", {
       _id: user._id,
       name: user.name,
       email: user.email,
@@ -112,7 +112,15 @@ export const updateProfile = async (req, res, next) => {
     if (user) {
       user.name = req.body.name || user.name;
       user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
-      user.avatar = req.body.avatar || user.avatar;
+
+      // Handle avatar upload
+      if (req.file) {
+        const uploadResult = await uploadToCloudinary(
+          req.file.buffer,
+          "avatars",
+        );
+        user.avatar = uploadResult.url;
+      }
 
       if (req.body.password) {
         user.password = req.body.password;
@@ -120,7 +128,7 @@ export const updateProfile = async (req, res, next) => {
 
       const updatedUser = await user.save();
 
-      return ApiResponse.success(res, 200, 'Profile updated successfully', {
+      return ApiResponse.success(res, 200, "Profile updated successfully", {
         _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
@@ -128,24 +136,23 @@ export const updateProfile = async (req, res, next) => {
         avatar: updatedUser.avatar,
       });
     } else {
-      return ApiResponse.error(res, 404, 'User not found');
+      return ApiResponse.error(res, 404, "User not found");
     }
   } catch (error) {
     next(error);
   }
 };
-
 // @desc    Logout user / clear cookie
 // @route   POST /api/auth/logout
 // @access  Private
 export const logout = async (req, res, next) => {
   try {
-    res.cookie('token', '', {
+    res.cookie("token", "", {
       httpOnly: true,
       expires: new Date(0), // Expire immediately
     });
 
-    return ApiResponse.success(res, 200, 'Logged out successfully', null);
+    return ApiResponse.success(res, 200, "Logged out successfully", null);
   } catch (error) {
     next(error);
   }

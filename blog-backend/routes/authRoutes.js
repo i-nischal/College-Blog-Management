@@ -7,6 +7,7 @@ import {
   updateProfile,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
+import upload from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.post('/login', login);
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
+router.put('/profile', protect, upload.single('avatar'), updateProfile);
 
 export default router;
