@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import generateToken, { setTokenCookie } from "../utils/generateToken.js";
 import ApiResponse from "../utils/apiResponse.js";
-import { uploadToCloudinary } from "../utils/cloudinary.js";
+import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public

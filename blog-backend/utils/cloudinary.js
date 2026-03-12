@@ -24,7 +24,7 @@ if (isCloudinaryConfigured) {
 } else {
   console.log("⚠️  Cloudinary not configured - using local file storage");
   console.log(
-    "📝 To use Cloudinary: Get credentials from https://cloudinary.com"
+    "📝 To use Cloudinary: Get credentials from https://cloudinary.com",
   );
 }
 
@@ -119,5 +119,3 @@ export const deleteFromCloudinary = async (publicId) => {
     throw new Error(`Delete failed: ${error.message}`);
   }
 };
-
-export default cloudinary;
