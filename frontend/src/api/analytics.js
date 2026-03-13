@@ -13,7 +13,7 @@ export const analyticsAPI = {
       const totalLikes = blogs.reduce((sum, blog) => sum + blog.likesCount, 0);
       const totalComments = blogs.reduce(
         (sum, blog) => sum + blog.commentsCount,
-        0
+        0,
       );
 
       // Calculate views (approximate based on likes + comments)
